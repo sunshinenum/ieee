@@ -1,0 +1,12 @@
+
+
+
+1. u_weighted_answers_rate, q_weighted_answers_rate, log_q_answers
+lr [ 0.9017314   0.90179244  0.90433562  0.90331638  0.9022971 ] 0.484942734355627
+rfc [ 0.90014445  0.89961547  0.90205693  0.90203459  0.90127978] 0.424294133952195
+                                                decision tree is not good at score
+
+2. "select label, u_answers_rate, u_weighted_answers_rate" \
+                 ", q_answers_rate, q_weighted_answers_rate" \
+                 ", log_q_answers from ieee.features"
+lr [ 0.90354215  0.90295213  0.9059836   0.9042116   0.90349753]

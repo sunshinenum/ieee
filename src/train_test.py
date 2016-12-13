@@ -14,6 +14,8 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import SVC
 from write_out import *
 import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 """
 user_info:          uid_string, u_label_list, words_list, char_list
@@ -24,20 +26,35 @@ temp.csv:           qid_string, uid_string, prob_label_float
 """
 
 
-def train_predict(data_without_label):
+def train_predict():
     # load train data
-    x, y = load_svmlight_file(path_vectors_train, 5)
+    x, y = load_svmlight_file(path_vectors_train, g_features_count + 1)
+    print "[+] Training ..."
 
     # decision tree [ 0.89345079  0.89400012  0.89574983  0.89621567  0.89523693]
     # clf = DecisionTreeClassifier(random_state=0)
     # clf.fit(x, y)
 
     # lr
-    clf = linear_model.SGDClassifier(loss="log", alpha=0.01, n_iter=200, fit_intercept=True)
+    clf = linear_model.SGDClassifier(loss="log",
+                                     alpha=0.001,
+                                     n_iter=2000,
+                                     fit_intercept=True,
+                                     penalty="l2",
+                                     n_jobs=4)
     clf.fit(x, y)
+
+    # # KNN
+    # clf = KNeighborsClassifier(n_neighbors=10)
+    # clf.fit(x, y)
 
     # naive bayes
     # clf = MultinomialNB()
+    # clf.fit(x, y)
+
+    # rfc
+    # clf = RandomForestClassifier(n_estimators=10, max_depth=None,
+    #                              min_samples_split=2, random_state=0)
     # clf.fit(x, y)
 
     # svm
@@ -45,13 +62,18 @@ def train_predict(data_without_label):
     # clf.fit(x, y)
 
     # cs test
-    print "[+] Training ..."
     cs_result = cross_val_score(clf, x, y, cv=5)
     print cs_result
+    clf.fit(x, y)
 
     # load predict data and predict
-    x_test, y_test = load_svmlight_file(path_vectors_test, 5)
+    x_test, y_test = load_svmlight_file(path_vectors_test, g_features_count + 1)
     print "[+] Predicting ..."
     result = clf.predict_proba(x_test)
-    write_out_result(result, data_without_label)
-    print "[+] Writing out result."
+    # write_out_result(result, data_without_label)
+    write_out_result_hive(result)
+    # write_out_result_give_low_score_zero(result)
+
+    # write out x train result
+    result = clf.predict_proba(x)
+    write_out_train_result(result)
